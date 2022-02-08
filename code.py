@@ -1,12 +1,15 @@
-# SPDX-FileCopyrightText: 2019 ladyada for Adafruit Industries
-# SPDX-License-Identifier: MIT
-
+"""
+This example queries the Open Weather Maps site API to find out the current
+weather for your location... and display it on a screen!
+if you can find something that spits out JSON data, we can display it
+"""
+import sys
+import time
 import board
-import busio
-from digitalio import DigitalInOut
-import adafruit_requests as requests
-import adafruit_esp32spi.adafruit_esp32spi_socket as socket
-from adafruit_esp32spi import adafruit_esp32spi
+from adafruit_pyportal import PyPortal
+cwd = ("/"+__file__).rsplit('/', 1)[0] # the current working directory (where this file is)
+sys.path.append(cwd)
+import openweather_graphics  # pylint: disable=wrong-import-position
 
 # Get wifi details and more from a secrets.py file
 try:
@@ -15,74 +18,49 @@ except ImportError:
     print("WiFi secrets are kept in secrets.py, please add them there!")
     raise
 
-print("ESP32 SPI webclient test")
+# Use cityname, country code where countrycode is ISO3166 format.
+# E.g. "New York, US" or "London, GB"
+LOCATION = "Manhattan, US"
 
-TEXT_URL = "http://wifitest.adafruit.com/testwifi/index.html"
-JSON_URL = "http://api.coindesk.com/v1/bpi/currentprice/USD.json"
+# Set up where we'll be fetching data from
+DATA_SOURCE = "http://api.openweathermap.org/data/2.5/weather?q="+LOCATION
+DATA_SOURCE += "&appid="+secrets['openweather_token']
+# You'll need to get a token from openweather.org, looks like 'b6907d289e10d714a6e88b30761fae22'
+DATA_LOCATION = []
 
 
-# If you are using a board with pre-defined ESP32 Pins:
-esp32_cs = DigitalInOut(board.ESP_CS)
-esp32_ready = DigitalInOut(board.ESP_BUSY)
-esp32_reset = DigitalInOut(board.ESP_RESET)
+# Initialize the pyportal object and let us know what data to fetch and where
+# to display it
+pyportal = PyPortal(url=DATA_SOURCE,
+                    json_path=DATA_LOCATION,
+                    status_neopixel=board.NEOPIXEL,
+                    default_bg=0x000000)
 
-# If you have an AirLift Shield:
-# esp32_cs = DigitalInOut(board.D10)
-# esp32_ready = DigitalInOut(board.D7)
-# esp32_reset = DigitalInOut(board.D5)
+gfx = openweather_graphics.OpenWeather_Graphics(pyportal.splash, am_pm=True, celsius=False)
 
-# If you have an AirLift Featherwing or ItsyBitsy Airlift:
-# esp32_cs = DigitalInOut(board.D13)
-# esp32_ready = DigitalInOut(board.D11)
-# esp32_reset = DigitalInOut(board.D12)
+localtile_refresh = None
+weather_refresh = None
+while True:
+    # only query the online time once per hour (and on first run)
+    if (not localtile_refresh) or (time.monotonic() - localtile_refresh) > 3600:
+        try:
+            print("Getting time from internet!")
+            pyportal.get_local_time()
+            localtile_refresh = time.monotonic()
+        except RuntimeError as e:
+            print("Some error occured, retrying! -", e)
+            continue
 
-# If you have an externally connected ESP32:
-# NOTE: You may need to change the pins to reflect your wiring
-# esp32_cs = DigitalInOut(board.D9)
-# esp32_ready = DigitalInOut(board.D10)
-# esp32_reset = DigitalInOut(board.D5)
+    # only query the weather every 10 minutes (and on first run)
+    if (not weather_refresh) or (time.monotonic() - weather_refresh) > 600:
+        try:
+            value = pyportal.fetch()
+            print("Response is", value)
+            gfx.display_weather(value)
+            weather_refresh = time.monotonic()
+        except RuntimeError as e:
+            print("Some error occured, retrying! -", e)
+            continue
 
-spi = busio.SPI(board.SCK, board.MOSI, board.MISO)
-esp = adafruit_esp32spi.ESP_SPIcontrol(spi, esp32_cs, esp32_ready, esp32_reset)
-
-requests.set_socket(socket, esp)
-
-if esp.status == adafruit_esp32spi.WL_IDLE_STATUS:
-    print("ESP32 found and in idle mode")
-print("Firmware vers.", esp.firmware_version)
-print("MAC addr:", [hex(i) for i in esp.MAC_address])
-
-for ap in esp.scan_networks():
-    print("\t%s\t\tRSSI: %d" % (str(ap["ssid"], "utf-8"), ap["rssi"]))
-
-print("Connecting to AP...")
-while not esp.is_connected:
-    try:
-        esp.connect_AP(secrets["ssid"], secrets["password"])
-    except RuntimeError as e:
-        print("could not connect to AP, retrying: ", e)
-        continue
-print("Connected to", str(esp.ssid, "utf-8"), "\tRSSI:", esp.rssi)
-print("My IP address is", esp.pretty_ip(esp.ip_address))
-print(
-    "IP lookup adafruit.com: %s" % esp.pretty_ip(esp.get_host_by_name("adafruit.com"))
-)
-print("Ping google.com: %d ms" % esp.ping("google.com"))
-
-# esp._debug = True
-print("Fetching text from", TEXT_URL)
-r = requests.get(TEXT_URL)
-print("-" * 40)
-print(r.text)
-print("-" * 40)
-r.close()
-
-print()
-print("Fetching json from", JSON_URL)
-r = requests.get(JSON_URL)
-print("-" * 40)
-print(r.json())
-print("-" * 40)
-r.close()
-
-print("Done!")
+    gfx.update_time()
+    time.sleep(30)  # wait 30 seconds before updating anything again
