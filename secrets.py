@@ -6,7 +6,7 @@ secrets = {
     'aio_username': 'axelmagnus',
     'aio_key': '1a20315d078d4304bee799ce4b2af0e7',
     'aio_port': '8883',
-    'openweather_token': 'b7f3173670086bfc757efcaf35185060',
+    'openweather_token': '233e75ac96798d58dd488bbda5fc2ec2',
     'city_id': '2692965',
     'celcius': True,
     'google_client_id': '454745915011-pkuehk32nn5t82kde4cnvqfcucihef0s.apps.googleusercontent.com',
