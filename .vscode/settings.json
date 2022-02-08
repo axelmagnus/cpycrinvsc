@@ -3,5 +3,13 @@
     "python.linting.pylintEnabled": false,
     "python.analysis.diagnosticSeverityOverrides": {
         "reportMissingModuleSource": "none"
-    }
+    },
+    "python.analysis.extraPaths": [
+        "/Users/axelmansson/.vscode/extensions/joedevivo.vscode-circuitpython-0.1.15/boards/0x239A/0x8036",
+        "/Users/axelmansson/.vscode/extensions/joedevivo.vscode-circuitpython-0.1.15/stubs",
+        "/Users/axelmansson/Library/Application Support/Code/User/globalStorage/joedevivo.vscode-circuitpython/bundle/20220208/adafruit-circuitpython-bundle-py-20220208/lib"
+    ],
+    "circuitpython.board.version": "6.2.0",
+    "circuitpython.board.vid": "0x239A",
+    "circuitpython.board.pid": "0x8036"
 }
