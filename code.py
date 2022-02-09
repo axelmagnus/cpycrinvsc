@@ -42,7 +42,7 @@ localtile_refresh = None
 weather_refresh = None
 while True:
     # only query the online time once per hour (and on first run)
-    if (not localtile_refresh) or (time.monotonic() - localtile_refresh) > 3600:
+    if (not localtile_refresh) or (time.monotonic() - localtile_refresh) > 600:
         try:
             print("Getting time from internet!")
             pyportal.get_local_time()
