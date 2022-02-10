@@ -3,6 +3,9 @@ This example queries the Open Weather Maps site API to find out the current
 weather for your location... and display it on a screen!
 if you can find something that spits out JSON data, we can display it
 """
+import supervisor
+supervisor.disable_autoreload()#stop autreload when changing tabs i VS code
+
 import sys
 import time
 import board

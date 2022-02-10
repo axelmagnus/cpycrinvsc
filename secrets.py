@@ -1,7 +1,8 @@
 secrets = {
     # 2.4 MegaPlupp Vinnys Bar Guest Axels Moto Keep the two '' quotes around the name
-    'ssid': '2.4 MegaPlupp',
-    'password': 'azazaz13',  # Axel2018 'Vinnys.Bar101' Keep the two '' quotes around password
+    'ssid': 'D410',
+    # Axel2018 'Vinnys.Bar101' Keep the two '' quotes around password
+    'password': 'Axel2018',
     'timezone': "Europe/Stockholm",  # http://worldtimeapi.org/timezones
     'aio_username': 'axelmagnus',
     'aio_key': '1a20315d078d4304bee799ce4b2af0e7',
