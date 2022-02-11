@@ -50,8 +50,8 @@ while True:
             print("Getting time from internet!")
             pyportal.get_local_time()
             localtile_refresh = time.monotonic()
-        except RuntimeError as e:
-            print("Some error occured, retrying! -", e)
+        except:
+            supervisor.reload()
             continue
 
     # only query the weather every 10 minutes (and on first run)
@@ -61,8 +61,8 @@ while True:
             print("Response is", value)
             gfx.display_weather(value)
             weather_refresh = time.monotonic()
-        except RuntimeError as e:
-            print("Some error occured, retrying! -", e)
+        except:
+            supervisor.reload()
             continue
 
     gfx.update_time()
