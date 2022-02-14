@@ -1,5 +1,5 @@
 """
-This example queries the Open Weather Maps site API to find out the current
+This example X queries the Open Weather Maps site API to find out the current
 weather for your location... and display it on a screen!
 if you can find something that spits out JSON data, we can display it
 """
